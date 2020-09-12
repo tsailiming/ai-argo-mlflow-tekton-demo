@@ -1,0 +1,71 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow                  # new type of k8s spec
+metadata:
+  generateName: mlflow-sample-    # name of the workflow spec
+spec:
+  serviceAccountName: argo-workflow
+  entrypoint: experiment-dag 
+  templates:
+  - name: mlflow-example              # name of the template
+    inputs:
+      parameters:
+      - name: alpha
+      - name: ratio
+    container:
+      image: image-registry.openshift-image-registry.svc:5000/odh-demo/train:latest
+      envFrom:
+        - secretRef:
+            name: mlflow-obc
+      env:
+        - name: MLFLOW_TRACKING_URI
+          value: http://mlflow.odh-demo.svc:8080       
+        - name: MLFLOW_S3_ENDPOINT_URL
+          value: http://s3.openshift-storage.svc
+      command: [python]
+      args: ["/opt/app-root/src/train.py","{{inputs.parameters.alpha}}","{{inputs.parameters.ratio}}" ] 
+  - name: experiment-dag
+    dag:
+      tasks:
+      - name: start
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.1" },{ name: ratio, value: "0.1" }]
+      - name: second
+        dependencies: [start]
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.9" },{ name: ratio, value: "0.2" }]
+      - name: third
+        dependencies: [start]
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.2" },{ name: ratio, value: "0.3" }]
+      - name: forth
+        dependencies: [fifth]
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.7" },{ name: ratio, value: "0.4" }]
+      - name: fifth
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.2" },{ name: ratio, value: "0.1" }]
+      - name: sixth
+        dependencies: [second]
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.1" },{ name: ratio, value: "0.2" }]
+      - name: seventh
+        dependencies: [second]
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.3" },{ name: ratio, value: "0.3" }]
+      - name: eight
+        dependencies: [second,forth]
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.8" },{ name: ratio, value: "0.4" }]
+      - name: end
+        dependencies: [sixth, seventh, eight]
+        template: mlflow-example
+        arguments:
+          parameters: [{name: alpha, value: "0.7" },{ name: ratio, value: "0.4" }]
