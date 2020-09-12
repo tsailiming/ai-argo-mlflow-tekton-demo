@@ -2,6 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow                  # new type of k8s spec
 metadata:
   generateName: mlflow-sample-    # name of the workflow spec
+  namespace: odh-demo
 spec:
   serviceAccountName: argo-workflow
   entrypoint: experiment-dag 
