@@ -1,0 +1,38 @@
+---
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  labels:
+    app: seldon
+  name: mnist
+spec:
+  annotations:
+    deployment_version: v1
+    project_name: MNIST Example
+  name: mnist
+  predictors:
+  - annotations:
+      predictor_version: v1
+    componentSpecs:
+    - spec:
+        containers:
+        - image: "quay.io/ltsai/pytorch-mnist-serving:latest"
+          imagePullPolicy: Always
+          name: pytorch-model
+          volumeMounts:
+            - name: kubeflow-gcfs
+              mountPath: /mnt/kubeflow-gcfs
+        terminationGracePeriodSeconds: 1
+        volumes:
+        - name: kubeflow-gcfs
+          persistentVolumeClaim:
+            claimName: kubeflow-gcfs
+    graph:
+      children: []
+      endpoint:
+        type: REST
+      name: pytorch-model
+      type: MODEL
+    name: mnist-ddp-serving
+    replicas: 1
+

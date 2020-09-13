@@ -1,0 +1,33 @@
+---
+apiVersion: machinelearning.seldon.io/v1
+kind: SeldonDeployment
+metadata:
+  name: sklearn
+  namespace: odh-demo
+spec:
+  name: wine-quality
+  predictors: 
+  - componentSpecs:
+    graph:
+      children: []
+      implementation: MLFLOW_SERVER
+      modelUri: s3://mlflow-obc-7b92a161-808f-4586-a84e-3b05cbbe5bfb/0/498fa5da4f9a421a8cc3c13daeb4c760/artifacts/model
+      envSecretRefName: seldon-init-container-secret
+      name: classifier
+    name: default
+    replicas: 1
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: classifier
+  namespace: odh-demo  
+spec:
+  to:
+    kind: Service
+    name: sklearn-default-classifier
+    weight: 100
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None

@@ -1,0 +1,53 @@
+# https://github.com/kubeflow/examples/tree/master/pytorch_mnist
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kubeflow-gcfs
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ocs-storagecluster-cephfs
+  volumeMode: Filesystem
+---
+apiVersion: kubeflow.org/v1
+kind: PyTorchJob
+metadata:
+  name: pytorch-mnist-ddp-cpu
+spec:
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+          - image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-cpu
+            name: pytorch
+            volumeMounts:
+            - mountPath: "/mnt/kubeflow-gcfs"
+              name: kubeflow-gcfs
+          volumes:
+          - name: kubeflow-gcfs
+            persistentVolumeClaim:
+              claimName: kubeflow-gcfs
+              readOnly: false
+    Worker:
+      replicas: 3
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+          - image: gcr.io/kubeflow-ci/pytorch-mnist-ddp-cpu
+            name: pytorch
+            volumeMounts:
+            - mountPath: "/mnt/kubeflow-gcfs"
+              name: kubeflow-gcfs
+          volumes:
+          - name: kubeflow-gcfs
+            persistentVolumeClaim:
+              claimName: kubeflow-gcfs
+              readOnly: false
