@@ -1,5 +1,5 @@
 flask
-grpc
+grpcio
 numpy
 Pillow
 tensorflow
