@@ -1,0 +1,5 @@
+flask
+grpc
+numpy
+Pillow
+tensorflow
