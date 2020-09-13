@@ -16,7 +16,7 @@ spec:
     componentSpecs:
     - spec:
         containers:
-        - image: "quay.io/ltsai/pytorch-mnist-serving:latest"
+        - image: image-registry.openshift-image-registry.svc:5000/odh-demo/mnist-serving
           imagePullPolicy: Always
           name: pytorch-model
           volumeMounts:
