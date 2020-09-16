@@ -11,7 +11,7 @@ spec:
     graph:
       children: []
       implementation: MLFLOW_SERVER
-      modelUri: s3://mlflow-obc-7b92a161-808f-4586-a84e-3b05cbbe5bfb/0/498fa5da4f9a421a8cc3c13daeb4c760/artifacts/model
+      modelUri: s3://mlflow-obc-3b2f7dae-20cb-48d9-8b7f-35749480b082/0/17c7086faed64b96b9264f59e5164f4e/artifacts/model
       envSecretRefName: seldon-init-container-secret
       name: classifier
     name: default
