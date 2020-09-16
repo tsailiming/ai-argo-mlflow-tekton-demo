@@ -22,8 +22,11 @@ logger = logging.getLogger(__name__)
 
 
 def eval_metrics(actual, pred):
+    # Root Mean Square Error (RMSE)
     rmse = np.sqrt(mean_squared_error(actual, pred))
+    # Mean Absolute Error
     mae = mean_absolute_error(actual, pred)
+    # R squared
     r2 = r2_score(actual, pred)
     return rmse, mae, r2
 

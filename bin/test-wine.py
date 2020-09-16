@@ -18,6 +18,12 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--url", help="predict url")
     args = parser.parse_args()
 
+    if not args.url:
+        print("Prediction URL not provided")
+        sys.exit(-1)
+
+    url = "{}/api/v1.0/predictions".format(args.url)
+
     warnings.filterwarnings("ignore")
     # Read the wine-quality csv file from the URL
     csv_url = (
@@ -39,11 +45,11 @@ if __name__ == "__main__":
     train_y = train[["quality"]]
     test_y = test[["quality"]]
 
-    print("Predict URL: {}".format(args.url))
+    print("Predict URL: {}".format(url))
     
     payload = {'data': {'ndarray': train_x.sample(1).values.tolist()}}
     print("Payload: {}".format(payload))
     
-    response = requests.post(args.url, json = payload).json()
+    response = requests.post(url, json = payload).json()
     print("Response: {}".format(response))    
                             
